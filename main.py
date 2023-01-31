@@ -144,7 +144,7 @@ class ContextEmbedding:
         def embed_(list_of_paths, tag, json_metadata):
             if not list_of_paths:
                 logging.warning(f"--- No context files found for {tag}. skipping...")
-                return False, json_metadata
+                return json_metadata
             else:
                 json_metadata = json_metadata | {f'{tag}_len': len(list_of_paths)}
                 out_filename = os.path.join(input_dir, f"{prefix}.{self.model_name}.{tag}.bin")
@@ -155,7 +155,7 @@ class ContextEmbedding:
                 logging.info(f"--- Scrapping data from {list_of_paths} and saving to {out_filename}...")
 
                 json_metadata = self.embed_contexts(list_of_paths, out_filename, idx_filename, json_metadata, tag)
-                return True, json_metadata
+                return json_metadata
 
         # 1. Embed documents
         json_metadata = {'embed_dim': self.d}
