@@ -136,14 +136,14 @@ class ContextEmbedding:
                 idx_buffer[i:i + BSZ, file_idx] = torch.tensor([sent2embid[s] for s in batch])
         return json_metadata | {'dataset_len': len(sentences)}
 
-    def embeddings_to_float_storage(self, input_dir, prefix, target_lang):
+    def embeddings_to_float_storage(self, input_dir, prefix, suffixes):
         """Produces embeddings for contexts at {input_dir}/context/{prefix}*
         and saves them directly into a FloatStorage tensor at {input_dir}/{prefix}.cxt.bin
         Saves a .json file with num_samples and num_contexts to {input_dir}/{prefix}.json"""
 
         def embed_(list_of_paths, tag, json_metadata):
             if not list_of_paths:
-                logging.warning(f"--- No context found for {tag}. skipping...")
+                logging.warning(f"--- No context files found for {tag}. skipping...")
                 return False, json_metadata
             else:
                 json_metadata = json_metadata | {f'{tag}_len': len(list_of_paths)}
@@ -158,24 +158,20 @@ class ContextEmbedding:
                 return True, json_metadata
 
         # 1. Embed documents
-        # With multilingual embed target language documents, otherwise use English
         json_metadata = {'embed_dim': self.d}
-        if "multilingual" not in self.model_name:  # only English contexts
-            lang = "en"
-        else:
-            lang = target_lang
-        _dir = glob.glob(os.path.join(input_dir, "context", f"{prefix}*.{lang}"))
+        suffixes = suffixes.split(',')
+        if any(l in suffixes for l in ['de', 'ru', 'fr', 'pl']) and "multilingual" in self.model_name: # Weak capture as more languages exist
+            logging.warning("--- WARNING: using non-multilingual model to embed non-English language text")
+        
+        for suffix in suffixes: 
+            _dir = glob.glob(os.path.join(input_dir, "context", f"{prefix}*.{suffix}"))
 
-        doc_done, json_metadata = embed_(_dir, lang, json_metadata)
+            json_metadata = embed_(_dir, suffix, json_metadata)
 
-        # 2. Embed metadata; embedding both with non- and multilingual models
-        _dir = glob.glob(os.path.join(input_dir, "context", f"{prefix}*.cxt"))
-        meta_done, json_metadata = embed_(_dir, "cxt", json_metadata)
 
-        if meta_done or doc_done:
-            # Save metadata to json
-            with open(os.path.join(input_dir, f"{prefix}.{self.model_name}.json"), 'w+') as f:
-                json.dump(json_metadata, f)
+        # Save metadata to json
+        with open(os.path.join(input_dir, f"{prefix}.{self.model_name}.json"), 'w+') as f:
+            json.dump(json_metadata, f)
 
 
 if __name__ == '__main__':
@@ -191,16 +187,16 @@ if __name__ == '__main__':
     parser.add_argument("--model",
                         required=True,
                         help="Model to use for embedding.")
-    parser.add_argument("--lang",
-                        default="en", help="Target language.")
+    parser.add_argument("--suffixes",
+                        default="en,cxt", help="suffixes to embed, separated by comma.")
     args = parser.parse_args()
     logging.info(f"Embedding with {args.model}")
     x = ContextEmbedding(args.model)
 
-    for prefix in ['dev', 'test', 'train']:
+    for prefix in ['dev', 'valid', 'test', 'train']:
         for path in args.paths:
             try:
-                x.embeddings_to_float_storage(path, prefix=prefix, target_lang=args.lang)
+                x.embeddings_to_float_storage(path, prefix=prefix, suffixes=args.suffixes)
             except FileNotFoundError:
                 logging.warning(f"Not found {path} (or already done). Skipping")
                 pass
