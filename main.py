@@ -136,10 +136,10 @@ class ContextEmbedding:
                 idx_buffer[i:i + BSZ, file_idx] = torch.tensor([sent2embid[s] for s in batch])
         return json_metadata | {'dataset_len': len(sentences)}
 
-    def embeddings_to_float_storage(self, input_dir, prefix, suffixes):
+    def embeddings_to_float_storage(self, input_dir, output_dir, prefix, suffixes):
         """Produces embeddings for contexts at {input_dir}/context/{prefix}*
-        and saves them directly into a FloatStorage tensor at {input_dir}/{prefix}.cxt.bin
-        Saves a .json file with num_samples and num_contexts to {input_dir}/{prefix}.json"""
+        and saves them directly into a FloatStorage tensor at {output_dir}/{prefix}.cxt.{bin,idx}
+        Saves a .json file with num_samples and num_contexts to {output_dir}/{prefix}.json"""
 
         def embed_(list_of_paths, tag, json_metadata):
             if not list_of_paths:
@@ -147,7 +147,7 @@ class ContextEmbedding:
                 return json_metadata
             else:
                 json_metadata = json_metadata | {f'{tag}_len': len(list_of_paths)}
-                out_filename = os.path.join(input_dir, f"{prefix}.{self.model_name}.{tag}.bin")
+                out_filename = os.path.join(output_dir, f"{prefix}.{self.model_name}.{tag}.bin")
                 idx_filename = os.path.join(input_dir, f"{prefix}.{self.model_name}.{tag}.idx")
                 if os.path.exists(out_filename):
                     logging.warning(f"--- Binarised file for {prefix} already exists. skipping...")
@@ -196,7 +196,7 @@ if __name__ == '__main__':
     for prefix in ['dev', 'valid', 'test', 'train']:
         for path in args.paths:
             try:
-                x.embeddings_to_float_storage(path, prefix=prefix, suffixes=args.suffixes)
+                x.embeddings_to_float_storage(path, args.dest_path, prefix=prefix, suffixes=args.suffixes)
             except FileNotFoundError:
                 logging.warning(f"Not found {path} (or already done). Skipping")
                 pass
