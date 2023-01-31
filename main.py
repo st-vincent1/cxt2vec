@@ -90,6 +90,7 @@ class ContextEmbedding:
         logging.info(f"--- Found {len(all_sentences)} sentences, {len(unique_sentences)} unique sentences")
 
         logging.info(f"--- Initialising a buffer for unique sentences...")
+
         binary_buffer = torch.FloatTensor(
             torch.FloatStorage.from_file(out_filename, shared=True, size=len(unique_sentences) * self.d)) \
             .reshape(len(unique_sentences), self.d).fill_(0)
@@ -147,6 +148,8 @@ class ContextEmbedding:
                 return json_metadata
             else:
                 json_metadata = json_metadata | {f'{tag}_len': len(list_of_paths)}
+                is not os.path.exists(output_dir):
+                    os.makedirs(output_dir)
                 out_filename = os.path.join(output_dir, f"{prefix}.{self.model_name}.{tag}.bin")
                 idx_filename = os.path.join(input_dir, f"{prefix}.{self.model_name}.{tag}.idx")
                 if os.path.exists(out_filename):
