@@ -118,7 +118,8 @@ class ContextEmbedding:
             binary_buffer[sent2embid[""]] = torch.zeros(self.d)  # this will later get trigger for padding
             json_metadata["pad_idx"] = sent2embid[""]
         except KeyError:
-            logging.warning("No pad idx selected for this dataset.")
+            logging.warning("No pad idx selected for this dataset. Assigning pad_idx to first available number.")
+            json_metadata["pad_idx"] = len(unique_sentences) + 1
             pass
 
         logging.info(f"--- Creating a binary file with the embeddings and a mapping of sentence to ID...")
