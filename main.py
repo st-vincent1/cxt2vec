@@ -1,3 +1,10 @@
+# Author: Sebastian Vincent
+# Date: 3 Feb 2023
+# License: MIT (see repository for details)
+#
+# When run, program embeds contexts at given filepath and with given suffixes into TorchStorage files
+
+
 import torch
 import json
 import transformers as ppb
@@ -166,7 +173,7 @@ class ContextEmbedding:
         # 1. Embed documents
         json_metadata = {'embed_dim': self.d}
         suffixes = suffixes.split(',')
-        if any(l in suffixes for l in ['de', 'ru', 'fr', 'pl']) and "multilingual" in self.model_name: # Weak capture as more languages exist
+        if any(l in suffixes for l in ['de', 'ru', 'fr', 'pl']) and "multilingual" not in self.model_name: # Weak capture as more languages exist
             logging.warning("--- WARNING: using non-multilingual model to embed non-English language text")
         
         for suffix in suffixes: 
