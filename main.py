@@ -177,7 +177,7 @@ class ContextEmbedding:
             logging.warning("--- WARNING: using non-multilingual model to embed non-English language text")
         
         for suffix in suffixes: 
-            _dir = glob.glob(os.path.join(input_dir, "context", f"{prefix}*.{suffix}"))
+            _dir = glob.glob(os.path.join(input_dir, "context", f"{prefix}.*.{suffix}"))
 
             json_metadata = embed_(_dir, suffix, json_metadata)
 
@@ -206,7 +206,7 @@ if __name__ == '__main__':
     logging.info(f"Embedding with {args.model}")
     x = ContextEmbedding(args.model)
 
-    for prefix in ['dev', 'valid', 'test', 'train']:
+    for prefix in ['dev', 'valid', 'test', 'train', 'test_unseen']:
         for path in args.paths:
             try:
                 x.embeddings_to_float_storage(path, args.dest_path, prefix=prefix, suffixes=args.suffixes)
