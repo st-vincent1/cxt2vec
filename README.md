@@ -1,29 +1,17 @@
 
 # cxt2vec
 
-<!-- ABOUT -->
 ## About
 
 This repository contains the code to vectorise contexts to use in models such as MTCue and LMCue.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- GETTING STARTED -->
 ## Getting Started
 
 
 ### Prerequisites
 
 To run the software, you need to install the following packages (preferably in an Anaconda environment or similar):
-* sentence_transformers
-  ```sh
-  
-  ```
-* [PyTorch](https://pytorch.org/)
-
-Organise the context data like this:
-
-TODO
+* sentence_transformers: `pip install sentence-transformers`
 
 ### Installation
 1. Clone the repo
@@ -36,7 +24,7 @@ TODO
    ```
 3. Run the embedding code:
    ```sh
-   python main.py --paths <<path(s) to data>> --dest_path <<destination path>> --suffixes <<comma-separated suffixes of data to embed>> --model <<context model>>
+   python main.py --path [path to data] --dest_path [path to output embeddings] --suffixes [comma-separated suffixes of data to embed] --model [context model]
    ```
 
 ## Usage
@@ -67,6 +55,7 @@ data
  |- en-de
  |- ...
 ```
+
 The following code
 ```sh
 python main.py --paths data/en-pl --dest_path data/en-pl/embeddings --suffixes cxt,pl --model minilm
@@ -97,11 +86,9 @@ data
 ```
 
 ### Training models on this data
-todo
+See examples in e.g. [github.com/st-vincent1/MTCue](MTCue repository) for how to use the embeddings to train models.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- LICENSE -->
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
