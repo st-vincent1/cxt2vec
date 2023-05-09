@@ -96,8 +96,6 @@ class ContextEmbedding:
         json_metadata = json_metadata | {f'{tag}_len_uniq': len(unique_sentences)}
         logging.info(f"--- Found {len(all_sentences)} sentences, {len(unique_sentences)} unique sentences")
 
-        logging.info(f"--- Initialising a buffer for unique sentences...")
-
         binary_buffer = torch.FloatTensor(
             torch.FloatStorage.from_file(out_filename, shared=True, size=len(unique_sentences) * self.d)) \
             .reshape(len(unique_sentences), self.d).fill_(0)
@@ -191,8 +189,7 @@ if __name__ == '__main__':
     """Produces embeddings for use as context input in MTCue etc.
     args.path is a list of paths to seek contexts from. """
     parser = ArgumentParser()
-    parser.add_argument("--paths",
-                        nargs='+',
+    parser.add_argument("--path",
                         required=True,
                         help="Path to data. assumes data at path has folder context/")
     parser.add_argument("--dest_path",
@@ -206,10 +203,9 @@ if __name__ == '__main__':
     logging.info(f"Embedding with {args.model}")
     x = ContextEmbedding(args.model)
 
-    for prefix in ['dev', 'valid', 'test', 'train', 'test_unseen']:
-        for path in args.paths:
-            try:
-                x.embeddings_to_float_storage(path, args.dest_path, prefix=prefix, suffixes=args.suffixes)
-            except FileNotFoundError:
-                logging.warning(f"Not found {path} (or already done). Skipping")
-                pass
+    for prefix in ['dev', 'valid', 'test', 'train', 'test_unseen']: # prefixes for context files
+        try:
+            x.embeddings_to_float_storage(path, args.dest_path, prefix=prefix, suffixes=args.suffixes)
+        except FileNotFoundError:
+            logging.warning(f"Not found {path} (or already done). Skipping")
+            pass
