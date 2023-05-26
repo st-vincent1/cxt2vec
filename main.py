@@ -205,7 +205,7 @@ if __name__ == '__main__':
 
     for prefix in ['dev', 'valid', 'test', 'train', 'test_unseen']: # prefixes for context files
         try:
-            x.embeddings_to_float_storage(path, args.dest_path, prefix=prefix, suffixes=args.suffixes)
+            x.embeddings_to_float_storage(args.path, args.dest_path, prefix=prefix, suffixes=args.suffixes)
         except FileNotFoundError:
-            logging.warning(f"Not found {path} (or already done). Skipping")
+            logging.warning(f"Not found {args.path} (or already done). Skipping")
             pass
